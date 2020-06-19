@@ -1,0 +1,53 @@
+- name: Report deploy to Raygun
+  block:
+    - name: Report Deploy to Raygun
+      uri:
+        url: "https://app.raygun.com/deployments?authToken={{ raygun_auth_token }}"
+        body_format: json
+        method: POST
+        body:
+          apiKey: "{{ raygun_api_key }}"
+          version: "{{ application }}-{{ version }}"
+          comment: "Deployed with ansible config: {{ config_version }}"
+          scmIdentifier: "{{ version }}"
+          scmType: GitHub
+      when: raygun_api_key is defined and (raygun_enabled|default(True)|bool)
+      register: raygun
+      no_log: "{{ not(unsafe_show_logs|bool) }}"
+  rescue:
+    - name: Explain raygun failure
+      fail:
+        msg: "Report deployment to raygun failed with status code '{{ raygun.status }}': {{ raygun.msg }}"
+      when: raygun.failed
+
+- name: Report deploy to honeycomb
+  block:
+    - name: Report deploy to honeycomb
+      honeycomb_marker:
+        api_host: "{{ honeycomb_url }}"
+        write_key: "{{ honeycomb_writekey }}"
+        dataset: "{{ honeycomb_dataset }}"
+        message: "{{ kube_resource_name }} {{ version }} {{ config_version }}"
+        start_time: "{{ deployment_start_time }}"
+        end_time: "{{ deployment_end_time }}"
+        type: "deploy"
+      when: honeycomb_writekey is defined and kube_resource_namespace in application_namespaces
+      register: honeycomb
+  rescue:
+    - name: Explain honeycomb failure
+      debug:
+        msg: "Report deployment to honeycomb failed with status code '{{ honeycomb.status }}': {{ honeycomb.msg }}"
+      when: honeycomb.failed
+
+- name: Report deploy to Grafana
+  grafana_annotations:
+    url: "{{ grafana_url }}/api/annotations"
+    tstamp: "{{ deployment_start_time }}"
+    end_tstamp: "{{ deployment_end_time }}"
+    tags:
+      - deploy
+      - namespace:{{ kube_resource_namespace }}
+      - app:{{ kube_resource_name }}
+    text: "Deployment {{ kube_resource_name }} {{ version }} {{ config_version }}"
+    token: "{{ grafana_api_token }}"
+  when: grafana_api_token is defined
