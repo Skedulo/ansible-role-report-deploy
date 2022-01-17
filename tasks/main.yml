@@ -20,25 +20,6 @@
         msg: "Report deployment to raygun failed with status code '{{ raygun.status }}': {{ raygun.msg }}"
       when: raygun.failed
 
-- name: Report deploy to honeycomb
-  block:
-    - name: Report deploy to honeycomb
-      honeycomb_marker:
-        api_host: "{{ honeycomb_url }}"
-        write_key: "{{ honeycomb_writekey }}"
-        dataset: "{{ honeycomb_dataset }}"
-        message: "{{ kube_resource_name }} {{ version }} {{ config_version }}"
-        start_time: "{{ deployment_start_time }}"
-        end_time: "{{ deployment_end_time }}"
-        type: "deploy"
-      when: honeycomb_writekey is defined and kube_resource_namespace in application_namespaces
-      register: honeycomb
-  rescue:
-    - name: Explain honeycomb failure
-      debug:
-        msg: "Report deployment to honeycomb failed with status code '{{ honeycomb.status }}': {{ honeycomb.msg }}"
-      when: honeycomb.failed
-
 - name: Report deploy to Grafana
   grafana_annotations:
     url: "{{ grafana_url }}/api/annotations"
