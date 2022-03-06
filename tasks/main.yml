@@ -32,3 +32,4 @@
     text: "Deployment {{ kube_resource_name }} {{ version }} {{ config_version }}"
     token: "{{ grafana_api_token }}"
   when: grafana_api_token is defined
+  failed_when: false
