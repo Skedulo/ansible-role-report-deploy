@@ -33,3 +33,25 @@
     token: "{{ grafana_api_token }}"
   when: grafana_api_token is defined
   failed_when: false
+
+- name: Report deploy to datadog
+  community.general.datadog_event:
+    title: >-
+      Deployment of {{ application }} {{ version }} to {{ env }}
+      {{ 'succeeded' if deploy_success else 'failed' }}
+    text: >-
+      Deployment of {{ application }} {{ version }} to {{ env }}
+      {{ 'succeeded' if deploy_success else 'failed' }}
+    api_key: "{{ datadog_api_key }}"
+    app_key: "{{ datadog_app_key }}"
+    tags:
+      - type:deployment
+      - version:{{ version }}
+      - application:{{ application }}
+      - environment:{{ env }}
+      - namespace:{{ kube_resource_namespace }}
+      - config:{{ config_version }}
+      - changed:{{ resources_changed | str | lower }}
+    alert_type: "{{ 'info' if deploy_success else 'error' }}"
+  when: datadog_api_key is defined and datadog_app_key is defined
+  failed_when: false
