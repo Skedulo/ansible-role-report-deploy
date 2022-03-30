@@ -51,7 +51,7 @@
       - environment:{{ env }}
       - namespace:{{ kube_resource_namespace }}
       - config:{{ config_version }}
-      - changed:{{ resources_changed | str | lower }}
+      - changed:{{ resources_changed | string | lower }}
       - instance:{{ instance }}
       - cluster:{{ kube_cluster_name }}
     alert_type: "{{ 'info' if deploy_success else 'error' }}"
