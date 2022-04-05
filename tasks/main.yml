@@ -55,6 +55,7 @@
       - changed:{{ resources_changed | string | lower }}
       - instance:{{ instance }}
       - cluster:{{ kube_cluster_name }}
+      - success:{{ deploy_success | string | lower }}
     alert_type: "{{ 'info' if deploy_success else 'error' }}"
   when: datadog_api_key is defined and datadog_app_key is defined
   failed_when: false
