@@ -46,16 +46,18 @@
     api_key: "{{ datadog_api_key }}"
     app_key: "{{ datadog_app_key }}"
     tags:
+      - application:{{ application }}
+      - changed:{{ resources_changed | string | lower }}
+      - cluster:{{ kube_cluster_name }}
+      - config:{{ config_version }}
+      - env:{{ env }}
+      - environment:{{ env }}
+      - instance:{{ instance }}
+      - namespace:{{ kube_resource_namespace }}
+      - service:{{ application }}
+      - success:{{ deploy_success | string | lower }}
       - type:deployment
       - version:{{ version }}
-      - application:{{ application }}
-      - environment:{{ env }}
-      - namespace:{{ kube_resource_namespace }}
-      - config:{{ config_version }}
-      - changed:{{ resources_changed | string | lower }}
-      - instance:{{ instance }}
-      - cluster:{{ kube_cluster_name }}
-      - success:{{ deploy_success | string | lower }}
     alert_type: "{{ 'info' if deploy_success else 'error' }}"
   when: datadog_api_key is defined and datadog_app_key is defined
   failed_when: false
