@@ -10,6 +10,4 @@
 - `honeycomb_url` - URL to send honeycomb markers
 - `honeycomb_writekey` - honeycomb key
 - `kube_resource_name` - name of resource in kubernetes
-- `raygun_api_key` - raygun api key
-- `raygun_auth_token` - raygun authorization token
 - `version` - version of application
