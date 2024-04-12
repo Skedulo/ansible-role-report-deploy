@@ -28,11 +28,14 @@
       - changed:{{ resources_changed | string | lower }}
       - cluster:{{ kube_cluster_name }}
       - config:{{ config_version }}
+      - duration:{{ (end_time|int - start_time|int) * 1000000000 }}
       - env:{{ env }}
       - environment:{{ env }}
+      - finished:{{ (end_time|int) * 1000 }}
       - instance:{{ instance }}
       - namespace:{{ kube_resource_namespace }}
       - service:{{ application }}
+      - started:{{ start_time|int * 1000 }}
       - success:{{ deploy_success | string | lower }}
       - type:deployment
       - version:{{ version }}
